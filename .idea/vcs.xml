@@ -2,7 +2,5 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
-    <mapping directory="D:\Android\AndroidStudioProjects\firebaseMsg\firebaseMsg" vcs="Git" />
-    <mapping directory="D:\Android\AndroidStudioProjects\firebaseMsg\firemessenger" vcs="Git" />
   </component>
 </project>
