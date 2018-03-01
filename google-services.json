@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "822883266288",
+    "firebase_url": "https://talk-91869.firebaseio.com",
+    "project_id": "talk-91869",
+    "storage_bucket": "talk-91869.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:822883266288:android:9f2b5f8502200112",
+        "android_client_info": {
+          "package_name": "firebase.ppaksse.com.firemessenger"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "822883266288-drqqkek69bhaj4b23nml8m376o1cv6ua.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAbhmn48MOvBdru48bgf5G1ymWETsijq0s"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
