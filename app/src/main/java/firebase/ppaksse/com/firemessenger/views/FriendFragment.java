@@ -68,13 +68,16 @@ public class FriendFragment extends Fragment {
         mFriendsDBRef = mFirebaseDb.getReference("users").child(mFirebaseUser.getUid()).child("friends");
         mUserDBRef = mFirebaseDb.getReference("users");
 
+        //친구목록구현
+
         // 1. 리얼타임데이터베이스에서 나의 친구목록을 리스터를 통하여 데이터를 가져옵니다.
         addFriendListener();
         // 2. 가져온 데이터를 통해서 recyclerview의 아답터에 아이템을 추가 시켜줍니다. (UI)갱신
         friendListAdapter = new FriendListAdapter();
         mRecyclerView.setAdapter(friendListAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        // 3. 아이템별로 (친구) 클릭이벤트를 주어서 선택한 친구와 대화를 할 수 있도록 한다.
+
+        // 3. 아이템별로 (친구) 클릭이벤트를 주어서 선택한 친구와 대화를 할 수 있도록 한다.(대화상대선택)
         mRecyclerView.addOnItemTouchListener(new RecyclerViewItemClickListener(getContext(), new RecyclerViewItemClickListener.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
@@ -85,18 +88,18 @@ public class FriendFragment extends Fragment {
                         @Override
                         public void onClick(View view) {
                             Intent chatIntent = new Intent(getActivity(), ChatActivity.class);
-                            chatIntent.putExtra("uid", friend.getUid());
+                            chatIntent.putExtra("uid", friend.getUid());  //싱클채팅
                             startActivityForResult(chatIntent, ChatFragment.JOIN_ROOM_REQUEST_CODE);
                         }
                     }).show();
-                } else {
-                    friend.setSelection(friend.isSelection() ? false : true);
+                } else { //여러명을 고를 수 있는 모드,
+                    friend.setSelection(friend.isSelection() ? false : true);//isselection 모드가 선택되었다면 펄스 아니면 트루
                     int selectedUserCount = friendListAdapter.getSelectionUsersCount();
                     Snackbar.make(view, selectedUserCount+"명과 대화를 하시겠습니까?", Snackbar.LENGTH_LONG).setAction("예", new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
                             Intent chatIntent = new Intent(getActivity(), ChatActivity.class);
-                            chatIntent.putExtra("uids", friendListAdapter.getSelectedUids());
+                            chatIntent.putExtra("uids", friendListAdapter.getSelectedUids()); //멀티채팅
                             startActivityForResult(chatIntent, ChatFragment.JOIN_ROOM_REQUEST_CODE);
                         }
                     }).show();
@@ -108,17 +111,18 @@ public class FriendFragment extends Fragment {
         return friendView;
     }
 
-    public void toggleSearchBar(){
+    public void toggleSearchBar(){//친구 프래그먼트에서 fab누르면 검색화면이 보일때 안보이게나, 다시 보이게도 함
         if (mSearchArea == null) return;
         mSearchArea.setVisibility( mSearchArea.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE );
     }
 
-    public void toggleSelectionMode(){
+    public void toggleSelectionMode(){//현재의 모드가 셀렉션모드인경우(친구 여러명 고를수있게 체크박스생성 상태) 이면 언셀렉션모드로 갈수있도 있고, 그게아니라면 셀렉션모드로 갈수있게함
         friendListAdapter
                 .setSelectionMode(friendListAdapter.getSelectionMode() == FriendListAdapter.SELECTION_MODE ? FriendListAdapter.UNSELECTION_MODE :
                         FriendListAdapter.SELECTION_MODE);
     }
 
+    //친구등록기능 구현
     @OnClick(R.id.findBtn)
     public void addFriend(){
 
@@ -175,10 +179,10 @@ public class FriendFragment extends Fragment {
                                             @Override
                                             public void onDataChange(DataSnapshot dataSnapshot) {
                                                 User user = dataSnapshot.getValue(User.class);
-                                                mUserDBRef.child(currentUser.getUid()).child("friends").push().setValue(user);
+                                                mUserDBRef.child(currentUser.getUid()).child("friends").push().setValue(user); //상대방 친구(currentUser)에 나의정보(user)를 등록시킴
                                                 Snackbar.make(mSearchArea, "친구등록이 완료되었습니다. ", Snackbar.LENGTH_LONG).show();
 
-                                                Bundle bundle = new Bundle();
+                                                Bundle bundle = new Bundle(); //파이어베이스에 애널리스틱 등록하는 것(내가 친구를 등록했다)
                                                 bundle.putString("me", mFirebaseUser.getEmail());
                                                 bundle.putString("friend",currentUser.getEmail());
                                                 mFirebaseAnalytics.logEvent("addFriend", bundle);
@@ -192,7 +196,7 @@ public class FriendFragment extends Fragment {
                                     }
                                 });
                             } else {
-                                if ( loopCount++ >= userCount ) {
+                                if ( loopCount++ >= userCount ) { //총사용자 명수가 유저카운트 이상으로 조회했을때 없다면
                                     Snackbar.make(mSearchArea, "가입을 하지 않은 친구입니다.", Snackbar.LENGTH_LONG).show();
                                     return;
                                 }

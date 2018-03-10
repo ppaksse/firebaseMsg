@@ -85,8 +85,8 @@ public class ChatFragment extends Fragment {
     }
 
 
-    private void addChatListener() {
-        mChatRef.addChildEventListener(new ChildEventListener() {
+    private void addChatListener() {  //채팅방 리스너 부착  (방 목록 수신 및 출력)
+        mChatRef.addChildEventListener(new ChildEventListener() {//실시간 변하는 값을 계속 감지하므로 싱글리스너가 아님
             @Override
             public void onChildAdded(final DataSnapshot chatDataSnapshot, String s) {
                 // ui 갱신 시켜주는 메서드로 방의 정보를 전달.
@@ -97,26 +97,26 @@ public class ChatFragment extends Fragment {
 
             @Override
             public void onChildChanged(final DataSnapshot chatDataSnapshot, String s) {
-                // 나의 내가 보낸 메시지가 아닌경우와 마지막 메세지가 수정이 되었다면 -> 노티출력
+                // 나의 내가 보낸 메시지가 아닌경우(다른사림이 보냄)와 마지막 메세지가 수정이 되었다면 -> 노티출력
 
                 // 변경된 방의 정보를 수신
                 // 변경된 포지션 확인. ( 채팅방 아이디로 기존의 포지션을 확인 합니다)
                 // 그 포지션의 아이템중 unreadCount 변경이 되었다면 unreadCount 변경
-                // lastMessage 입니다. last 메세지의 시각과 변경된 메세지의 last메세지 시간이 다르다면 -> 노티피케이션을 출력햅니다.
+                // lastMessage 입니다. last 메세지의 시각과 변경된 메세지의 last메세지 시간이 다르다면 -> 노티피케이션을 출력합니다.
                 // 현재 액티비티가 ChatActivity 이고 chat_id 가 같다면 노티는 해주지 않습니다.
 
                 // ui 갱신 시켜주는 메서드로 방의 정보를 전달.
-                // totalunread의 변경, title의 변경, lastmessage변경시에 호출이 됩니다.
+                // onChildChanged가 호출되는 조건이 3가지(totalunread의 변경, title의 변경, lastmessage변경시에 호출이 됩니다.)
                 // 방에 대한 정보를 얻어오고
                 drawUI(chatDataSnapshot, DrawType.UPDATE);
                 final Chat updatedChat = chatDataSnapshot.getValue(Chat.class);
 
                 if (updatedChat.getLastMessage() != null ) {
-                    if ( updatedChat.getLastMessage().getMessageType() == Message.MessageType.EXIT ) {
+                        if ( updatedChat.getLastMessage().getMessageType() == Message.MessageType.EXIT ) {
                         return;
                     }
-                    if ( !updatedChat.getLastMessage().getMessageUser().getUid().equals(mFirebaseUser.getUid())) {
-                        if ( !updatedChat.getChatId().equals(JOINED_ROOM)) {
+                    if ( !updatedChat.getLastMessage().getMessageUser().getUid().equals(mFirebaseUser.getUid())) {//내가 아니어야 하고
+                        if ( !updatedChat.getChatId().equals(JOINED_ROOM)) {//현재 방에 들어가 있지 않으면 노티 알림(채팅방에 들어가있으면 노티 안옴)
                             // 노티피케이션 알림
                             Intent chatIntent = new Intent(mContext, ChatActivity.class);
                             chatIntent.putExtra("chat_id", updatedChat.getChatId());
@@ -126,7 +126,7 @@ public class ChatFragment extends Fragment {
                                     .setText(updatedChat.getLastMessage().getMessageText())
                                     .notification();
 
-                            Bundle bundle = new Bundle();
+                            Bundle bundle = new Bundle();////상대방이 나에게 노티를 보낸다(애널리스틱)
                             bundle.putString("friend", updatedChat.getLastMessage().getMessageUser().getEmail());
                             bundle.putString("me", mFirebaseUser.getEmail());
                             mFirebaseAnalytics.logEvent("notification", bundle);
@@ -163,7 +163,7 @@ public class ChatFragment extends Fragment {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 long memberCount = dataSnapshot.getChildrenCount();
-                Iterator<DataSnapshot> memberIterator = dataSnapshot.getChildren().iterator();
+                Iterator<DataSnapshot> memberIterator = dataSnapshot.getChildren().iterator();  //넘어온 친구의 정보를 확인(방의 타이틀을 바꿔주기 위해)
                 StringBuffer memberStringBuffer = new StringBuffer();
 
                 /**
@@ -185,18 +185,18 @@ public class ChatFragment extends Fragment {
                 int loopCount = 1;
                 while( memberIterator.hasNext()) {
                     User member = memberIterator.next().getValue(User.class);
-                    if ( !mFirebaseUser.getUid().equals(member.getUid())) {
-                        memberStringBuffer.append(member.getName());
-                        if ( memberCount - loopCount > 1 ) {
+                    if ( !mFirebaseUser.getUid().equals(member.getUid())) { //현재 유저와 현제 루프중인 채팅 아이디가 같지 않을때만
+                        memberStringBuffer.append(member.getName()); //멤버타이틀에 멤버이름을 적음
+                        if ( memberCount - loopCount > 1 ) {//마지막 멤버 다음에 쉼표 오면 안되므로,
                             memberStringBuffer.append(", ");
                         }
                     }
                     if ( loopCount == memberCount ) {
-                        // users/uid/chats/{chat_id}/title
-                        String title = memberStringBuffer.toString();
+                        // users/uid/chats/{chat_id}/title   현재 chat_id 까지 들어와있는상태
+                        String title = memberStringBuffer.toString(); //기존의 타이틀의 정보
                         if ( chatRoom.getTitle() == null ) {
                             chatDataSnapshot.getRef().child("title").setValue(title);
-                        } else if (!chatRoom.getTitle().equals(title)){
+                        } else if (!chatRoom.getTitle().equals(title)){//새로 만들어진 타이틀 정보와 기존의 타이틀의 정보(title) 이 같지않다면
                             chatDataSnapshot.getRef().child("title").setValue(title);
                         }
                         chatRoom.setTitle(title);
@@ -217,8 +217,8 @@ public class ChatFragment extends Fragment {
         });
     }
 
-    public void leaveChat(final Chat chat) {
-        final DatabaseReference messageRef = mFirebaseDatase.getReference("chat_messages").child(chat.getChatId());
+    public void leaveChat(final Chat chat) {//방나가기
+        final DatabaseReference messageRef = mFirebaseDatase.getReference("chat_messages").child(chat.getChatId());//방나갈때 하위항목이 아닌 동등한 병렬적위치의 항목으로 들어가기 하기 위해
         Snackbar.make(getView(), "선택된 대화방을 나가시겠습니까?", Snackbar.LENGTH_LONG).setAction("예", new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -251,15 +251,16 @@ public class ChatFragment extends Fragment {
                                 // 메세지 unreadCount에서도 제거
                                 // getReadUserList 내가 있다면 읽어진거니깐 pass
                                 // 없다면 unreadCount - 1
-                                // messages/{chat_id}
+                                // messages/{chat_id} 의
                                 // 모든 메세지를 가져온다.
                                 // 가져와서 루프를 통해서 내가 읽었는지 여부 판단.
 
-                                Bundle bundle = new Bundle();
+                                Bundle bundle = new Bundle();//내가 어떤방에서 나간다(애널리스틱)
                                 bundle.putString("me", mFirebaseUser.getEmail());
                                 bundle.putString("chatId", chat.getChatId());
-
                                 mFirebaseAnalytics.logEvent("leaveChat", bundle);
+
+
 
                                 // 채팅방의 멤버정보를 받아와서
                                 // 채팅방의 정보를 가져오고 (각각)
@@ -272,7 +273,7 @@ public class ChatFragment extends Fragment {
                                         public void onDataChange(DataSnapshot dataSnapshot) {
                                             Iterator<DataSnapshot> chatMemberIterator = dataSnapshot.getChildren().iterator();
 
-                                            while ( chatMemberIterator.hasNext()) {
+                                            while ( chatMemberIterator.hasNext()) {//각 멤버의 방에 나간사람이 있으면 라스트 메세지를 수정해줌
                                                 User chatMember = chatMemberIterator.next().getValue(User.class);
 
                                                 // chats -> {uid} -> {chat_id} - { ... }
@@ -303,9 +304,9 @@ public class ChatFragment extends Fragment {
                                         while ( messageIterator.hasNext()) {
                                             DataSnapshot messageSnapshot = messageIterator.next();
                                             Message currentMessage = messageSnapshot.getValue(Message.class);
-                                            if ( !currentMessage.getReadUserList().contains(mFirebaseUser.getUid())) {
+                                            if ( !currentMessage.getReadUserList().contains(mFirebaseUser.getUid())) {// getReadUserList 내가 없다면
                                                 // message
-                                                messageSnapshot.child("unreadCount").getRef().setValue(currentMessage.getUnreadCount() - 1);
+                                                messageSnapshot.child("unreadCount").getRef().setValue(currentMessage.getUnreadCount() - 1);//나갔는데도 불구하고, 모두 읽었는데도 1이 떠있는것을 방지하기 위함
                                             }
                                         }
                                     }

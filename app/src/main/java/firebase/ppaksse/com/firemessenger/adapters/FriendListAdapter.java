@@ -18,10 +18,10 @@ import java.util.ArrayList;
 public class FriendListAdapter extends RecyclerView.Adapter<FriendListAdapter.FriendHolder> {
 
 
-    public static final int UNSELECTION_MODE = 1;
-    public static final int SELECTION_MODE = 2;
+    public static final int UNSELECTION_MODE = 1; //친구 한명 선택할때 모드
+    public static final int SELECTION_MODE = 2;  //친구 여러명 선택할때 모드
 
-    private int selectionMode = UNSELECTION_MODE;
+    private int selectionMode = UNSELECTION_MODE;  //셀렉션모드 최초의 값은 친구한명선택모드로 놓음
 
     private ArrayList<User> friendList;
 
@@ -29,7 +29,7 @@ public class FriendListAdapter extends RecyclerView.Adapter<FriendListAdapter.Fr
         friendList = new ArrayList<>();
     }
 
-    public void addItem(User friend) {
+    public void addItem(User friend) { //리얼타임데이터베이스에 onchild가 added 되었을때 리스트어답터에 아이템을 추가해야하므로
         friendList.add(friend);
         notifyDataSetChanged();
     }
@@ -53,7 +53,7 @@ public class FriendListAdapter extends RecyclerView.Adapter<FriendListAdapter.Fr
         return selectedCount;
     }
 
-    public String [] getSelectedUids() {
+    public String [] getSelectedUids() { //선택된 유저의 정보를 리턴할수 있는 함수
         String [] selecteUids = new String[getSelectionUsersCount()];
         int i = 0;
         for ( User user : friendList) {
@@ -81,9 +81,9 @@ public class FriendListAdapter extends RecyclerView.Adapter<FriendListAdapter.Fr
         User friend = getItem(position);
         holder.mEmailView.setText(friend.getEmail());
         holder.mNameView.setText(friend.getName());
-        if ( getSelectionMode() == UNSELECTION_MODE ) {
+        if ( getSelectionMode() == UNSELECTION_MODE ) { //언슬랙션모드 이면 체크박스 없는걸로
             holder.friendSelectedView.setVisibility(View.GONE);
-        } else {
+        } else {        //그렇치 안흥면 체크박스 보이도록
             holder.friendSelectedView.setVisibility(View.VISIBLE);
         }
 
@@ -99,18 +99,18 @@ public class FriendListAdapter extends RecyclerView.Adapter<FriendListAdapter.Fr
         return friendList.size();
     }
 
-    public static class FriendHolder extends RecyclerView.ViewHolder {
+    public static class FriendHolder extends RecyclerView.ViewHolder {//뷰홀더란 친구목록의 한개의 아이템을 말함
 
         @BindView(R.id.checkbox)
         CheckBox friendSelectedView;
 
-        @BindView(R.id.thumb)
+        @BindView(R.id.thumb)   //프로필사진
         RoundedImageView mProfileView;
 
-        @BindView(R.id.name)
+        @BindView(R.id.name) //이름
         TextView mNameView;
 
-        @BindView(R.id.email)
+        @BindView(R.id.email)  //에메일로 구성됨(fragment_friend_item)
         TextView mEmailView;
 
         private FriendHolder(View v) {

@@ -82,7 +82,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
         final Chat item = getItem(position);
 
         // chatThumbnailView
-        if ( item.getLastMessage() != null ) {
+        if ( item.getLastMessage() != null ) {//라스트메세지가 들어왔을때만 화면갱신하기 위해서
 
             if ( item.getLastMessage().getMessageType() == Message.MessageType.TEXT) {
                 holder.lastMessageView.setText(item.getLastMessage().getMessageText());
@@ -97,6 +97,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
 
 
         holder.titleView.setText(item.getTitle());
+
         holder.rootView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
@@ -107,8 +108,8 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
             }
         });
 
-        if (item.getTotalUnreadCount() > 0 ){
-            holder.totalUnreadCountView.setText(String.valueOf(item.getTotalUnreadCount()));
+            if (item.getTotalUnreadCount() > 0 ){//읽지않은 카운트가 0보다 클때 일경우
+            holder.totalUnreadCountView.setText(String.valueOf(item.getTotalUnreadCount())); //int 형이므로 string 형으로 바꿔줌
             holder.totalUnreadCountView.setVisibility(View.VISIBLE);
         } else {
             holder.totalUnreadCountView.setVisibility(View.GONE);
@@ -117,7 +118,7 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ChatHo
     }
 
     @Override
-    public int getItemCount() {
+        public int getItemCount() {
         return mChatList.size();
     }
 

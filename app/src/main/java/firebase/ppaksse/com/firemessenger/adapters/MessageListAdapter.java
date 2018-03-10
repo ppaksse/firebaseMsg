@@ -40,7 +40,7 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
     }
 
     public void updateItem(Message item) {
-        int position = getItemPosition(item.getMessageId());
+        int position = getItemPosition(item.getMessageId()); //변경된 아이템의 포지션을 얻어와서
         if ( position < 0) {
             return;
         }
@@ -138,20 +138,20 @@ public class MessageListAdapter extends RecyclerView.Adapter<MessageListAdapter.
                 holder.exitTextView.setText(String.format("%s님이 방에서 나가셨습니다.", item.getMessageUser().getName()));
             }
 
-            if ( item.getUnreadCount() > 0 ) {
+                if ( item.getUnreadCount() > 0 ) {
                 holder.rcvUnreadCount.setText(String.valueOf(item.getUnreadCount()));
-            }  else {
+            }  else {//언리드카운트가 0이면 내가 메세지 읽었으므로 빈칸으로 세팅해주어야
                 holder.rcvUnreadCount.setText("");
             }
 
-            if ( item.getMessageUser().getProfileUrl() != null ) {
+            if ( item.getMessageUser().getProfileUrl() != null ) {//상대방 유저의 프로필유알엘이 널값이 아니면
                 Glide
                         .with(holder.yourArea)
                         .load(item.getMessageUser().getProfileUrl())
                         .into(holder.rcvProfileView);
             }
 
-            if ( item.getMessageType() == Message.MessageType.EXIT ) {
+            if ( item.getMessageType() == Message.MessageType.EXIT ) {//만약 상대방이 보낸메세지가 엑세티 메세지라면
                 holder.yourArea.setVisibility(View.GONE);
                 holder.sendArea.setVisibility(View.GONE);
                 holder.exitArea.setVisibility(View.VISIBLE);
